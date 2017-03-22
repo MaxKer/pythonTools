@@ -47,7 +47,7 @@ while result != 1:
 
     f = open('text.txt', 'r')
     captcha = f.read().replace(" ","").replace("\n","")
-    print "captcha: " + captcha
+    print "Testing: " + captcha
     f.close()
 
     r = s.post(url, cookies = c, verify = False, data={'cametu':captcha})
