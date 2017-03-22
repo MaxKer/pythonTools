@@ -1,8 +1,10 @@
 # Library import
 
-from requests import Request, Session
-import re, os
+from requests import Session
+import re
+import os
 import base64
+import time
 
 # Challenge URL
 url = "http://challenge01.root-me.org/programmation/ch8/"
@@ -16,6 +18,10 @@ p2 = re.compile(responseRegex)
 p3 = re.compile(flagRegex)
 
 result = 0
+
+print "Start time: "
+print time.time()
+startTime =  time.time()
 
 while result != 1:
     # HTTP session
@@ -55,3 +61,7 @@ while result != 1:
     if p3.match(r.content):
         print "Flag: " + p3.match(r.content).group("flag")
         result=1
+
+
+print "Total time:"
+print time.time() - startTime
