@@ -48,7 +48,6 @@ qrcodeTestImg = Image.open(qrcodeTest)
 qrcodeTestImg.load()
 print zbarlight.scan_codes('qrcode',qrcodeTestImg)
 
-test = qrcode.make('test')
 # END OF TEST
 
 
