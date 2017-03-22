@@ -4,16 +4,16 @@ from requests import Request, Session
 import re, os
 import base64
 
-
 # Challenge URL
 url = "http://challenge01.root-me.org/programmation/ch8/"
 
 # Regex used for b64 img grab
 regex=".*image/png;base64,(?P<image>.*)\" /><br>.*"
 responseRegex=".*Leaking solutions on Internet is forbidden</a></p><p>(?P<response>.*)<br></p><br/>.*"
+flagRegex=".*Congratz, le flag est (?P<flag>.*)</p></p>.*"
 p = re.compile(regex)
 p2 = re.compile(responseRegex)
-
+p3 = re.compile(flagRegex)
 
 result = 0
 
@@ -41,21 +41,17 @@ while result != 1:
     captcha_file.close()
 
     # Analyse png file to found text flag and store it in text.txt file
-    command = "tesseract -psm 8 captcha.png text alphadigits"
+    command = "tesseract -psm 8 captcha.png text alphadigits  > /dev/null 2>&1"
 
     os.system(command)
 
     f = open('text.txt', 'r')
-    captcha = f.read().strip("\n")
-    print "result: " + captcha
+    captcha = f.read().replace(" ","").replace("\n","")
+    print "captcha: " + captcha
     f.close()
 
     r = s.post(url, cookies = c, verify = False, data={'cametu':captcha})
-    # print r.content
 
-    # print m2.group("response")
-    try:
-        m2 = p2.match(r.content)
-    except NameError:
-        result = 1
-        print r.content
+    if p3.match(r.content):
+        print "Flag: " + p3.match(r.content).group("flag")
+        result=1
