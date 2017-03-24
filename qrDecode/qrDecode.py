@@ -5,7 +5,7 @@ import base64
 
 # Get QR Code Image from root-me
 
-#
+
 # # KALI PROXY
 #
 # proxies = {
