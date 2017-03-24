@@ -1,21 +1,29 @@
 from PIL import Image
-import zbarlight
 import re
 from requests import Session
 import base64
-import qrcode
-
 
 # Get QR Code Image from root-me
+
+#
+# # KALI PROXY
+#
+# proxies = {
+#   'http': 'http://192.168.188.157:8080',
+#   'https': 'https://192.168.188.157:8080',
+# }
+#
 
 # Challenge URL
 url = "http://challenge01.root-me.org/programmation/ch7/"
 
+# Regex declaration
 regex=".*image/png;base64,(?P<image>.*)\" /><br/>.*"
 p = re.compile(regex)
-
 flagRegex=".*Congratz, le flag est (?P<flag>.*)</p></p>.*"
 p3 = re.compile(flagRegex)
+regexApiQRCODE=".*\n.*\n.*\n.*The key is (?P<flag>.*)</pre>.*"
+p4 = re.compile(regexApiQRCODE)
 
 
 # HTTP session
@@ -41,17 +49,6 @@ qrcodeImg.write(base64.decodestring(qrcodeChall))
 qrcodeImg.close()
 
 
-# START TESTING
-# Test QRCODE reading
-qrcodeTest = open('test.png','rb')
-qrcodeTestImg = Image.open(qrcodeTest)
-qrcodeTestImg.load()
-print zbarlight.scan_codes('qrcode',qrcodeTestImg)
-
-# END OF TEST
-
-
-
 # Merge qrcode with base QRCode
 baseQR = Image.open('baseqr.png')
 baseQR = baseQR.convert("RGBA")
@@ -63,15 +60,23 @@ final = final.point(lambda x: 0 if x<200 else 255, '1')
 final.save('final.png')
 width, height = final.size
 
-finalQR = open('final.png','rb')
-finalQRImg = Image.open(finalQR)
-finalQRImg.load()
 
-print zbarlight.scan_codes('qrcode',final)
-# print zbarlight.qr_code_scanner(final.tobytes(),width,height)
+# API QRCODE decoder
+urlApiQRCODE = "https://zxing.org/w/decode"
+files = {'file': open('final.png', 'rb')}
 
-qrcodeResponse = "test"
-r = s.post(url, cookies=c, verify=False, data={'metu': qrcodeResponse})
+# Open HTTP session
+sAPI = Session()
+
+# With or without proxie POST request
+# rAPI = sAPI.post(urlApiQRCODE,files=files,proxies=proxies,verify=False)
+rAPI = sAPI.post(urlApiQRCODE,files=files)
+
+# Parse flag in the HTTP response
+flag = p4.match(rAPI.content).group("flag")
+print "response: " + flag
+
+r = s.post(url, cookies=c, verify=False, data={'metu': flag})
 
 if p3.match(r.content):
     print "Flag: " + p3.match(r.content).group("flag")
